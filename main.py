@@ -2,7 +2,7 @@ from aiohttp import ClientSession
 from fastapi import FastAPI, HTTPException, Request, Response
 import json
 
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None)
 
 
 def _filter_happ_headers(headers):
@@ -10,9 +10,9 @@ def _filter_happ_headers(headers):
     return {name: value for name, value in headers.items() if name in keys}
 
 
-async def _get_subscription(headers, path) -> tuple[bytes, dict, int]:
+async def _get_subscription(headers, sub) -> tuple[bytes, dict, int]:
     async with ClientSession() as session:
-        async with session.get(f"https://oversub.cloud/{path}", headers=headers) as response:
+        async with session.get(f"https://oversub.cloud/{sub}", headers=headers) as response:
             return await response.read(), _process_oversub_headers(dict(response.headers)), response.status
 
 
@@ -58,16 +58,16 @@ def _reassemble_happ_subscription(origin_subscription: list) -> list:
     return subscription
 
 
-def _filter_spam(request: Request, path):
+def _filter_spam(request: Request):
     allowed_agents = ["happ", "incy"]
 
-    if not any(agent in path.lower() for agent in allowed_agents):
+    if not any(agent in request.headers.get("user-agent", "").lower() for agent in allowed_agents):
         raise HTTPException(status_code=403, detail="Forbidden")
 
 
 @app.get("/{sub}")
 async def read_root(request: Request, sub: str):
-    _filter_spam(request, sub)
+    _filter_spam(request)
 
     input_headers = _filter_happ_headers(request.headers)
 
