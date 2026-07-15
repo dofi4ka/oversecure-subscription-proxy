@@ -35,16 +35,33 @@ def _try_parse_json(content) -> tuple[list, bool]:
 
 
 def _reassemble_happ_subscription(origin_subscription: list) -> list:
-    rules = [{
-      "type": "field",
-      "domain": [
-        "domain:innohassle.ru",
-        "domain:innopolis.university",
-        "domain:innopolis.ru",
-        "domain:dofi4ka.ru",
-      ],
-      "outboundTag": "direct"
-    }]
+    rules = [
+        {
+            "type": "field",
+            "domain": [
+                "domain:innohassle.ru",
+                "domain:innopolis.university",
+                "domain:innopolis.ru",
+                "domain:dofi4ka.ru",
+            ],
+            "outboundTag": "direct"
+        },
+        {
+            "type": "field",
+            "domain": [
+                "regexp:\\.ru$",
+                "regexp:\\.рф$"
+            ],
+            "outboundTag": "direct"
+        },
+        {
+            "type": "field",
+            "ip": [
+                "geoip:ru"
+            ],
+            "outboundTag": "direct"
+        }
+    ]
 
     subscription = []
 
