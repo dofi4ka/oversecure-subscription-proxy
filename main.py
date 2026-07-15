@@ -38,7 +38,6 @@ def _reassemble_happ_subscription(origin_subscription: list) -> list:
     rules = [{
       "type": "field",
       "domain": [
-        "domain:2ip.ru",
         "domain:innohassle.ru",
         "domain:innopolis.university",
         "domain:innopolis.ru",
