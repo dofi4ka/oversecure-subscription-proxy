@@ -1,5 +1,5 @@
 from aiohttp import ClientSession
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, HTTPException, Request, Response
 import json
 
 app = FastAPI()
@@ -18,6 +18,7 @@ async def _get_subscription(headers, path) -> tuple[bytes, dict, int]:
 
 def _process_oversub_headers(headers) -> dict:
     headers["Announce"] = "base64:8J+QiOKAjeKsmyBPdmVyU2VjdXJlIFZQTiB3aXRoIGlubm9wb2xpcyByb3V0aW5n"
+    headers["Profile-Title"] = "base64:8J+QiOKAjeKsmyBPdmVyU2VjdXJlIFZQTgo="
     if "Server" in headers:
         del headers["Server"]
     if "Content-Encoding" in headers:
@@ -56,11 +57,21 @@ def _reassemble_happ_subscription(origin_subscription: list) -> list:
 
     return subscription
 
-@app.get("/{path}")
-async def read_root(request: Request, path: str):
+
+def _filter_spam(request: Request, path):
+    allowed_agents = ["happ", "incy"]
+
+    if not any(agent in path.lower() for agent in allowed_agents):
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+
+@app.get("/{sub}")
+async def read_root(request: Request, sub: str):
+    _filter_spam(request, sub)
+
     input_headers = _filter_happ_headers(request.headers)
 
-    content, headers, status = await _get_subscription(input_headers, path)
+    content, headers, status = await _get_subscription(input_headers, sub)
 
     print(headers)
 
