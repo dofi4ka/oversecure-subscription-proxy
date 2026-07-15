@@ -61,7 +61,8 @@ def _reassemble_happ_subscription(origin_subscription: list) -> list:
         {
             "type": "field",
             "ip": [
-                "geoip:ru"
+                "geoip:ru",
+                "ip:10.90.25.12"
             ],
             "outboundTag": "direct"
         }
