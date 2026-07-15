@@ -46,6 +46,7 @@ def _reassemble_happ_subscription(origin_subscription: list) -> list:
                 "domain:duckduckgo.com",
                 "domain:perplexity.ai",
                 "domain:github.com",
+                "domain:githubassets.com",
                 "domain:todoist.com"
             ],
             "outboundTag": "direct"
